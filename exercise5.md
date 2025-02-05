@@ -89,21 +89,28 @@ In this step, we will create a provisioning task in the QuarkLink™ platform.
 
 2. In the new window, choose a name for the provisioning task - for example "cordelia-provisioning-task". For the device type, select "Cordelia-I WiFi Module (WE)." For the batch, you can select the "Default" option.
 
+3. Click on "Create New Key" to add a new signing key.
 
-3. Click "Edit Advanced Parameters" to set up parameters for the Certificate Signing Request (CSR) and additional MQTT parameters. Default values are pre-filled for all fields, but you should use your own information. For example, update the country code from
+![Provisioning task](resources/create_key.png)
+
+4. In the "Create Signing Key" window, choose a name for the key - for example "cordelia-signing-key". Select "QuarkLink Soft HSM" for key store type and leave the key type and size to default. Click on "Save" to create a signing key.
+
+![Provisioning task](resources/keyview.png)
+
+5. Click "Edit Advanced Parameters" to set up parameters for the Certificate Signing Request (CSR) and additional MQTT parameters. Default values are pre-filled for all fields, but you should use your own information. For example, update the country code from
 "DE" to your actual country code. The same applies for state, locality, surname, email, organization, and unit.
 
 ![Advanced parameters1](resources/4.png)
 
 
-4. In the "Edit Advanced Parameters" window, leave the MQTT Parameters at their default values, then click "Save" to save your settings.
+6. In the "Edit Advanced Parameters" window, leave the MQTT Parameters at their default values, then click "Save" to save your settings.
 
 ![Advanced parameters2](resources/5.png)
 
-5. By default, the four subtopics and pubtopics (the MQTT topics that the module automatically subscribes to and the four topics it can publish to) are set with some placeholder values. We’ll use these default values, so no changes are needed here.
+7. By default, the four subtopics and pubtopics (the MQTT topics that the module automatically subscribes to and the four topics it can publish to) are set with some placeholder values. We’ll use these default values, so no changes are needed here.
 
 
-6. Click "Save Provisioning Task" to save your provisioning task and parameters. You can rerun this provisioning task as often as you like for your Cordelia-I modules without needing
+8. Click "Save Provisioning Task" to save your provisioning task and parameters. You can rerun this provisioning task as often as you like for your Cordelia-I modules without needing
 to re-enter parameters each time.
 
 
