@@ -66,7 +66,7 @@ At this stage, the EV-board is connected with the WE UART terminal. In order to 
 
 ![Test Connection](resources/at_test.png)
 
-You should see the following logs in the command window.
+You should see the following logs in the command window. The "AT+TEST" command is used to check the connection to the module via UART.
 ```
 -> AT+TEST
 <- OK

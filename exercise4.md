@@ -5,12 +5,6 @@
 In the previous exercise, we created an MQTT connection over an encrypted TLS link. However, this was not a mutually authenticated connection.
 The aim of this exercise is to create a fully secure MQTT connection using mTLS.
 
-> [!IMPORTANT]  
-> Perform a "Factory Reset". Please note that the reset will typically take 60 seconds. Please wait for at least this time, the PC tool will not show any reaction during that duration, please be patient.
->
-> TODO: screenshot of factory reset button.
-
-
 ## TLS
 Transport Layer Security (TLS) is a cryptographic protocol designed to provide communications security over a computer network, such as the Internet. The TLS protocol aims primarily to provide security, including privacy (confidentiality), integrity, and authenticity through the use of cryptography, such as the use of certificates, between two or more communicating entities.
 
@@ -80,6 +74,8 @@ You will need the following assets to create this connection.
 2. Device certificate
 3. RootCA certificate for AWS
 
+## **Factory reset Cordelia-I module**
+
 > [!IMPORTANT]  
 > Perform a "Factory Reset". Please note that the reset will typically take 60 seconds. Please wait for at least this time. The PC tool will not show any reaction during that duration, please be patient. Do not power-off or hard reset the EV-board during this time.
 >
@@ -89,17 +85,10 @@ You will need the following assets to create this connection.
 
 In this step, we will upload the device certificate  and keys (download from AWS IoT core) to the Cordelia-I's file system. These files will be used by the on-board MQTT client during the connection set up.
 
-> [!IMPORTANT]  
-> For adding, modifying or creating files on the Cordelia-I file system the WLAN connection shall be disconnected. This is achieved by pressing "Disconnect" on the "WLAN Settings" on the PC tool as shown by point 5.
-
-
 In order to upload the file, in the "File operations" tab on the WE UART terminal, 
-1. Type in the file name in the "FileName" text box.
-2. Type in "4096" in the "Size(bytes)" field.
-3. Check the "Write" and "Create" check boxes in the Mode.
-4. Click on "Open". Cordelia will generate a file ID which will be copied automatically to the FileID text box.
-5. Now click-on the "WriteFile" button. This will open a file browser. Browse to the location where the downloaded server file was saved. Select the file and click on "Open". The file will be written to the module's file system.
-6. Finally, click on close button to close the file.
+1. Type in correct filename in the "FileName" text box.
+2. Click on "Upload File" button. This will open the file explorer. Navigate to the location where you stored the certificate. Select the file and click on "OK". 
+ 
  
 ![Write file](resources/writeFile.png)
 
@@ -123,10 +112,46 @@ Use this process to write the following files,
 2. Device certificate with file name "cert.pem"
 3. RootCA certificate downloaded form [here](https://ssl-tools.net/certificates/ad7e1c28b064ef8f6003402014c3d0e3370eb58a.pem) with file name "rootca.pem"
 
+
+## **Connect Cordelia-I module to your WiFi network**
+
+Open the WLAN settings tab in the WE UART terminal.
+In order to connect the Cordelia-I module to your WiFi network,
+1. Type in the SSID of your WiFi network.
+2. Choose the correct security type.
+3. Type in your password.
+4. Finally click on "Connect".
+
+![WiFi Connect](resources/wifi_connect.png)
+
+On successful connection, you will receive a "connect" event as well as an "ipv4_acquired" event.
+
+```
+-> AT+wlanconnect=your_ssid,,WPA_WPA2,your_password,,,
+<- OK
+<- +eventwlan:connect,your_ssid,0x34:0x31:0xc4:0x4a:0xeb:0x5f
+<- +eventnetapp:ipv4_acquired,192.168.178.100,192.168.178.1,192.168.178.1
+```
+Congratulations! Your module is now connected to the internet via your WiFi network. You can confirm this by checking the fact that the "mode" and "status" LEDs are now switched on.
+
+![WiFi Connected](resources/connected_led.png)
+
 ## Configure the Cordelia-I module
 
 In this step, we configure the Cordelia-I module to connect to the public AWS IoT Core broker and send/receive data.
 The on-board MQTT client on the Cordelia-I module needs to be configured. These parameters are stored in the "user settings" of the module. In the WE UART terminal, use the "Custom command/input" section in the "General" tab to configure the user settings.
+
+The following parameters necessary for this connection:
+
+- MQTT Broker address.
+- MQTT port.
+- Flags to indicate the type of server used for this connection.
+- Set the client ID (Replace "your_client_id" with a meaningful name).
+- Full path to the root CA certificate stored on the file system of the Cordelia-I module.
+- Full path to the device certificate stored on the file system of the Cordelia-I module.
+- Full path to the device private key stored on the file system of the Cordelia-I module.
+- Set topic strings to subscribe and publish.
+
 
 ```
 -> AT+set=MQTT,iotHubEndpoint,"a2m4kdan3jizyu-ats.iot.eu-central-1.amazonaws.com"
@@ -149,7 +174,7 @@ The on-board MQTT client on the Cordelia-I module needs to be configured. These 
 <- OK
 ```
 
-You could configure additional topics to publish,
+[Optional]You could configure additional topics to publish,
 ```
 -> AT+set=PUBTOPIC1,name,"cordelia/banana"
 <- OK

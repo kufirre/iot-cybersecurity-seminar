@@ -1,14 +1,8 @@
 ![WE Logo](resources/WE_Logo_small_t.png)
 
 # **Exercise 2**: Hands-on with MQTT protocol (without security)
-
 > [!WARNING]  
 > **The MQTT server used here is public and data sent will be publicly accessible. Be aware of the data you share.**
-
-> [!IMPORTANT]  
-> Perform a "Factory Reset". Please note that the reset will typically take 60 seconds. Please wait for at least this time. The PC tool will not show any reaction during that duration, please be patient. Do not power-off or hard reset the EV-board during this time.
->
-> ![Factory reset](resources/factory_reset.png)
 
 The aim of this exercise is to get hands-on with the MQTT protocol by connecting Cordelia-I module to a public MQTT server without any encryption or authentication.
 
@@ -65,12 +59,49 @@ You can now test the connection by publishing the data to a topic that this clie
 
 Congratulations! You have now sent your first MQTT packet.
 
+
+## **Factory reset Cordelia-I module**
+
+> [!IMPORTANT]  
+> Perform a "Factory Reset". Please note that the reset will typically take 60 seconds. Please wait for at least this time. The PC tool will not show any reaction during that duration, please be patient. Do not power-off or hard reset the EV-board during this time.
+>
+> ![Factory reset](resources/factory_reset.png)
+
+## **Connect Cordelia-I module to your WiFi network**
+
+Open the WLAN settings tab in the WE UART terminal.
+In order to connect the Cordelia-I module to your WiFi network,
+1. Type in the SSID of your WiFi network.
+2. Choose the correct security type.
+3. Type in your password.
+4. Finally click on "Connect".
+
+![WiFi Connect](resources/wifi_connect.png)
+
+On successful connection, you will receive a "connect" event as well as an "ipv4_acquired" event.
+
+```
+-> AT+wlanconnect=your_ssid,,WPA_WPA2,your_password,,,
+<- OK
+<- +eventwlan:connect,your_ssid,0x34:0x31:0xc4:0x4a:0xeb:0x5f
+<- +eventnetapp:ipv4_acquired,192.168.178.100,192.168.178.1,192.168.178.1
+```
+Congratulations! Your module is now connected to the internet via your WiFi network. You can confirm this by checking the fact that the "mode" and "status" LEDs are now switched on.
+
+![WiFi Connected](resources/connected_led.png)
+
 ## Configure the Cordelia-I to connect to public Mosquitto broker
 
 In this step, we configure the Cordelia-I module to connect to the public Mosquitto Broker and send/receive data.
 The on-board MQTT client on the Cordelia-I module needs to be configured. These parameters are stored in the "user settings" of the module. In the WE UART terminal, use the "Custom command/input" section in the "General" tab to configure the user settings.
 
-:bulb: You could use the "Set up module with dummy parameters" button. This will configure all the user settings and all the parameters necessary for this connection.
+:bulb: You could use the "Set up module with dummy parameters" button. This will configure the following user settings parameters necessary for this connection:
+
+- MQTT Broker address.
+- MQTT port.
+- Flags to indicate the type of server used for this connection.
+- Set the client ID (Replace "your_client_id" with a meaningful name).
+- Set topic strings to subscribe and publish.
 
 ```
 -> AT+set=MQTT,iotHubEndpoint,"test.mosquitto.org"
@@ -87,7 +118,7 @@ The on-board MQTT client on the Cordelia-I module needs to be configured. These 
 <- OK
 ```
 
-You could configure additional topics to publish,
+[Optional] You could configure additional topics to publish,
 ```
 -> AT+set=PUBTOPIC1,name,"cordelia/banana"
 <- OK
@@ -98,11 +129,7 @@ You could configure additional topics to publish,
 ```
 ![Cordelia user settings](resources/cordelia_usersetting.png)
 
-
 ## Connect to the broker and exchange data
-
-At this stage make sure that you are connected to the WiFi. If not connected, follow the steps [here](exercise1.md\#connect-cordelia-i-module-to-your-wifi-network).
-
 Now that the module is configured, Go to the "IoT Operations" tab and click on "Connect" button. On successful connection, you will the module will generate a "CONNACK" event.
 
 

@@ -4,6 +4,15 @@
 
 The aim of this exercise is to connect Cordelia-I module securely to the cloud using the [QuarkLink™](https://www.cryptoquantique.com/products/quarklink/) platform.
 
+
+> [!IMPORTANT]  
+> Perform a "Factory Reset". Please note that the reset will typically take 60 seconds. Please wait for at least this time. The PC tool will not show any reaction during that duration, please be patient. Do not power-off or hard reset the EV-board during this time.
+>
+> ![Factory reset](resources/factory_reset.png)
+
+> [!IMPORTANT]  
+>Disconnect the Module from the WE UART terminal!
+
 ## Secure device enrolment
 From the previous exercises, it is clear that in order to make the connection to the cloud secure, the device and cloud should perform mutual authentication followed by exchange of a session key which is then used to encrypt the communication channel. This is typically performed using the TLS protocol. 
 
