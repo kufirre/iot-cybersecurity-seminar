@@ -13,13 +13,13 @@ In order to go through this workshop you will need the following.
 3. A WiFI access point (IEEE 802.11 b/g/n compatible) with internet access and with WPA2 personal or WPA3 personal mode.
 
 ### **Software**
-1. A chromium based browser. It is recommended to use Edge or Chrome browser.
+1. A **chromium** based browser. It is recommended to use Edge or Chrome browser.
 
 2. Install [**drivers**](https://ftdichip.com/drivers/vcp-drivers/) for the UART-to-USB chip on the Cordelia-I EV-board.
 
 3. The [**WE UART terminal**](https://www.we-online.com/components/products/media/674801).
 
-:warning: This tool works only on Windows platform. This tool may require installation of additional dotnet packages.
+:warning: This tool works only on Windows platform. This tool may require installation of dotnet runtime. If this is not already installed, please [download](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.36-windows-x64-installer) and install this package.
 
 :warning: If you are using any other platform, please use any serial terminal of choice or the built-in serial terminal from QuarkLink™.
 

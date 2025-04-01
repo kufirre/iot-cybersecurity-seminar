@@ -21,6 +21,9 @@ Data transfer in MQTT takes place based on publish/subscribe mechanism. The clie
 
 For this hands-on exercise, we will use a publicly available version of the [**Eclipse Mosquitto**](https://mosquitto.org/) MQTT server/broker. [This server](https://test.mosquitto.org/) is provided as a service for the community to do testing, but it is also extremely useful for testing.
 
+> [!WARNING]  
+> Being publicly hosted, it is possible that the mosquitto broker is not always online and available. In case the this server is not available at the time of your testing, you can use the server from [EMQX](https://www.emqx.com/en/mqtt/public-mqtt5-broker) instead. When using the EMQX broker, the hostname/endpoint address will be "broker.emqx.io". All the other parameters will remain the same.
+
 ## MQTT client
 
 For this exercise, we will use [**MQTT explorer tool**](https://mqtt-explorer.com/) as the client. MQTT Explorer is a comprehensive MQTT client that provides a structured overview of your MQTT topics and makes working with devices/services on your broker dead-simple. Follow the instructions [here](https://mqtt-explorer.com/) to install this tool.

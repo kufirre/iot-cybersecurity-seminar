@@ -40,6 +40,8 @@ In order to create TLS connection the client and the server require a set of cry
 
 For this hands-on exercise, we will use a publicly available version of the [**Eclipse Mosquitto**](https://mosquitto.org/) MQTT server/broker. [This server](https://test.mosquitto.org/) is provided as a service for the community to do testing, but it is also extremely useful for testing.
 
+> [!WARNING]  
+> Being publicly hosted, it is possible that the mosquitto broker is not always online and available. In case the this server is not available at the time of your testing, you can use the server from [EMQX](https://www.emqx.com/en/mqtt/public-mqtt5-broker) instead. When using the EMQX broker, the hostname/endpoint address will be "broker.emqx.io" and the root CA certificate should be downloaded from [here.](https://assets.emqx.com/data/broker.emqx.io-ca.crt) All the other parameters will remain the same.
 
 ## MQTT client
 
@@ -63,6 +65,7 @@ You will however need a server certificate to perform server authentication. Ple
 ## Upload server certificate to Cordelia
 
 In this step, we will upload the mosquitto server certificate (download from [here](https://test.mosquitto.org/ssl/mosquitto.org.crt)) to the Cordelia-I's file system. This file will be used by the on-board MQTT client during the connection set up.
+
 
 In order to upload the file, in the "File operations" tab on the WE UART terminal, 
 1. Type in "mosquitto.org.pem" in the "FileName" text box.
