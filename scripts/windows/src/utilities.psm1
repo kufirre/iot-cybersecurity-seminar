@@ -125,8 +125,8 @@ class CordeliaConfig {
             Write-Warning "Unusual baud rate: $($this.UART.baudrate)"
         }
         
-        if ($this.SECURITY.chunk_size -lt 64 -or $this.SECURITY.chunk_size -gt 1460) {
-            throw "Invalid chunk_size: $($this.SECURITY.chunk_size). Must be between 64 and 1460 bytes."
+        if ($this.SECURITY.chunk_size -lt 64 -or $this.SECURITY.chunk_size -gt 1024) {
+            throw "Invalid chunk_size: $($this.SECURITY.chunk_size). Must be between 64 and 1024 bytes (limited by CC3200/CC3220 UART DMA buffer size)."
         }
         
         if ($this.FILE_OPERATIONS.read_chunk_size -lt 64 -or $this.FILE_OPERATIONS.read_chunk_size -gt 4096) {
@@ -413,6 +413,9 @@ function Get-ErrorMessage {
         -10283 = "Bundle files are opened."
         -10284 = "Incorrect file state for operation."
         -10285 = "Empty Serial Flash."
+        
+        # Network and Communication Errors
+        -2073 = "Resource temporarily unavailable (EAGAIN) - operation already in progress."
     }
     
     if ($errorLookup.ContainsKey($ErrorCode)) { 
@@ -753,7 +756,6 @@ Export-ModuleMember -Function @(
     'Write-Color',
     'Send-AT', 
     'Get-ErrorMessage',
-    'Get-ErrorCodeFromMessage',
     'New-CordeliaConnection',
     'CordeliaFileUpload',
     'CordeliaFileDownload',

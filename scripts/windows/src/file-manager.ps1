@@ -406,7 +406,7 @@ function Read-DeviceFile {
             try {
                 $closeCmd = "AT+FILECLOSE=$handle,,"
                 Write-Color Green "Closing file handle $handle..." -LogFile $LogFile
-                $Connection.SendCommand($closeCmd, 'OK', ($Connection.Config.timeout * 1000)) | Out-Null
+                $Connection.SendCommand($closeCmd, 'OK', ($Connection.Config.timeout * 1000))
                 Write-Color Green "File handle closed successfully" -LogFile $LogFile
             } catch {
                 Write-Color Red "Warning: Failed to close file handle $handle" -LogFile $LogFile
