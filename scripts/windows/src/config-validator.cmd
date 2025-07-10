@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 setlocal enabledelayedexpansion
 title Cordelia-I Configuration Validator
 
@@ -69,7 +69,7 @@ echo ╔════════════════════════
 echo ║                     🔌 Test Connection                           ║
 echo ╚══════════════════════════════════════════════════════════════════╝
 echo.
-echo 🔍 Testing connection to Cordelia-I device...
+echo Testing connection to Cordelia-I device...
 echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0config-validator.ps1" -TestConnection
 goto SHOW_RESULT
@@ -127,7 +127,9 @@ echo    • ✅ Verify serial port functionality
 echo    • 🔍 Validate device responses
 echo.
 echo 📋 LIST PORTS:
-echo    • 🔌 Show all available COM ports
+echo    • 🔌 Show all available COM ports with detailed information
+echo    • 🔍 Display hardware IDs and device descriptions
+echo    • ✅ Identify Cordelia-I compatible devices automatically
 echo    • 💻 System-detected serial interfaces
 echo.
 echo 📄 CREATE TEMPLATE:

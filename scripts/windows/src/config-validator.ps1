@@ -69,6 +69,59 @@ function Get-AvailablePorts {
     }
 }
 
+function Show-DetailedPortInfo {
+    Write-Host "USB Serial Devices (likely Cordelia-I candidates):" -ForegroundColor Green
+    Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Green
+    
+    try {
+        $usbSerialDevices = Get-WmiObject -Class Win32_PnPEntity | Where-Object { 
+            $_.Caption -match 'COM\d+' -and 
+            ($_.Caption -match 'USB' -or $_.Caption -match 'Serial' -or $_.Caption -match 'UART' -or 
+             $_.Caption -match 'CP210' -or $_.Caption -match 'FTDI' -or $_.Caption -match 'CH340')
+        }
+        
+        if ($usbSerialDevices) {
+            foreach ($device in $usbSerialDevices) {
+                if ($device.Caption -match '(COM\d+)') {
+                    $comPort = $matches[1]
+                    Write-Host "   🔌 $comPort - $($device.Caption)" -ForegroundColor White
+                    
+                    try {
+                        if ($device.HardwareID) {
+                            Write-Host "      Hardware ID: $($device.HardwareID[0])" -ForegroundColor Gray
+                            
+                            if ($device.HardwareID[0] -match 'VID_10C4' -or $device.HardwareID[0] -match 'CP210') {
+                                Write-Host "      ✅ Silicon Labs CP210x - Common for Cordelia-I" -ForegroundColor Green
+                            } elseif ($device.HardwareID[0] -match 'VID_0403' -or $device.HardwareID[0] -match 'FTDI') {
+                                Write-Host "      ✅ FTDI Chip - Alternative driver" -ForegroundColor Green
+                            }
+                        }
+                    } catch {
+                        # Ignore hardware ID lookup errors
+                    }
+                }
+            }
+        } else {
+            Write-Host "   ⚠️  No USB serial devices found" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "   ❌ Error scanning USB devices: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    Write-Host ""
+    Write-Host "All Available COM Ports:" -ForegroundColor Green
+    Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Green
+    
+    $allPorts = Get-AvailablePorts
+    if ($allPorts.Count -gt 0) {
+        foreach ($port in $allPorts) {
+            Write-Host "   📍 $port" -ForegroundColor White
+        }
+    } else {
+        Write-Host "   ⚠️  No COM ports detected on system" -ForegroundColor Yellow
+    }
+}
+
 function Test-PortAvailability {
     param([string]$PortName)
     
@@ -138,13 +191,13 @@ function Test-ConfigurationFile {
         }
         
         # Check FILE_OPERATIONS settings if present
-        if ($config.ContainsKey('FILE_OPERATIONS')) {
+        if ($config.FILE_OPERATIONS -and $config.FILE_OPERATIONS.Count -gt 0) {
             # Validate boolean settings
             $booleanSettings = @('confirm_overwrite', 'show_progress', 'enable_logging')
             foreach ($key in $booleanSettings) {
                 if ($config.FILE_OPERATIONS.ContainsKey($key)) {
                     $validBooleans = @('true', 'false', 'yes', 'no', '1', '0')
-                    if ($validBooleans -notcontains $config.FILE_OPERATIONS[$key].ToLower()) {
+                    if ($validBooleans -notcontains $config.FILE_OPERATIONS[$key].ToString().ToLower()) {
                         $issues += "Invalid FILE_OPERATIONS ${key}: $($config.FILE_OPERATIONS[$key]). Must be true/false"
                     }
                 }
@@ -182,7 +235,7 @@ function Test-ConfigurationFile {
         }
         
         # Check MQTT settings if present
-        if ($config.ContainsKey('MQTT')) {
+        if ($config.MQTT -and $config.MQTT.Count -gt 0) {
             if ($config.MQTT.ContainsKey('port')) {
                 $mqttPort = [int]$config.MQTT.port
                 if ($mqttPort -lt 1 -or $mqttPort -gt 65535) {
@@ -192,7 +245,7 @@ function Test-ConfigurationFile {
             
             if ($config.MQTT.ContainsKey('use_tls')) {
                 $validBooleans = @('true', 'false', 'yes', 'no', '1', '0')
-                if ($validBooleans -notcontains $config.MQTT.use_tls.ToLower()) {
+                if ($validBooleans -notcontains $config.MQTT.use_tls.ToString().ToLower()) {
                     $issues += "Invalid MQTT use_tls: $($config.MQTT.use_tls). Must be true/false"
                 }
             }
@@ -237,7 +290,7 @@ function Test-DeviceConnection {
         
         # Test basic AT command
         try {
-            $connection.SendCommand("AT+test", "OK", 3000) | Out-Null
+            $connection.SendCommand("AT+test", "OK", 3000)
             Write-Color Green "✓ Device responds to AT commands"
             
             # Try to get version info
@@ -328,70 +381,70 @@ function Show-Configuration {
         Write-Host "═══════════════════════════" -ForegroundColor Green
         Write-Host ""
         
-        Write-Host "UART Settings" -ForegroundColor Cyan
-        Write-Host "  📍 Port:       $($config.UART.port)"
+        Write-Host "UART Settings" -ForegroundColor Green
+        Write-Host "  📍 Port:        $($config.UART.port)"
         Write-Host "  ⚡ Baud Rate:   $($config.UART.baudrate)"
-        Write-Host "  📊 Data Bits:   $($config.UART.databits)"
+        Write-Host "  📋 Data Bits:   $($config.UART.databits)"
         Write-Host "  🔧 Parity:      $($config.UART.parity)"
-        Write-Host "  ⏹️ Stop Bits:   $($config.UART.stopbits)"
-        Write-Host "  ⏱️ Timeout:     $($config.UART.timeout) seconds"
+        Write-Host "  🛑 Stop Bits:   $($config.UART.stopbits)"
+        Write-Host "  ⏰ Timeout:     $($config.UART.timeout) seconds"
         Write-Host ""
         
-        Write-Host "Security Settings" -ForegroundColor Cyan
-        Write-Host "  📜 Certificate: $($config.SECURITY.certificate_name)"
-        Write-Host "  📦 Chunk Size:  $($config.SECURITY.chunk_size) bytes"
-        Write-Host "  🔐 Encoding:    $($config.SECURITY.encoding)"
-        Write-Host "  🔄 Max Retries: $($config.SECURITY.max_retries)"
-        Write-Host "  ✅ Verify:      $($config.SECURITY.verify_upload)"
+        Write-Host "Security Settings" -ForegroundColor Green
+        Write-Host "  • Certificate: $($config.SECURITY.certificate_name)"
+        Write-Host "  • Chunk Size:  $($config.SECURITY.chunk_size) bytes"
+        Write-Host "  • Encoding:    $($config.SECURITY.encoding)"
+        Write-Host "  • Max Retries: $($config.SECURITY.max_retries)"
+        Write-Host "  • Verify:      $($config.SECURITY.verify_upload)"
         Write-Host ""
         
-        if ($config.ContainsKey('FILE_OPERATIONS')) {
-            Write-Host "File Operations:" -ForegroundColor Cyan
+        if ($config.FILE_OPERATIONS -and $config.FILE_OPERATIONS.Count -gt 0) {
+            Write-Host "File Operations:" -ForegroundColor Green
             if ($config.FILE_OPERATIONS.ContainsKey('confirm_overwrite')) {
-                Write-Host "  ✅ Confirm Overwrite: $($config.FILE_OPERATIONS.confirm_overwrite)"
+                Write-Host "  • Confirm Overwrite: $($config.FILE_OPERATIONS.confirm_overwrite)"
             }
             if ($config.FILE_OPERATIONS.ContainsKey('show_progress')) {
-                Write-Host "  📊 Show Progress:     $($config.FILE_OPERATIONS.show_progress)"
+                Write-Host "  • Show Progress:     $($config.FILE_OPERATIONS.show_progress)"
             }
             if ($config.FILE_OPERATIONS.ContainsKey('enable_logging')) {
-                Write-Host "  📝 Enable Logging:    $($config.FILE_OPERATIONS.enable_logging)"
+                Write-Host "  • Enable Logging:    $($config.FILE_OPERATIONS.enable_logging)"
             }
             if ($config.FILE_OPERATIONS.ContainsKey('log_directory')) {
-                Write-Host "  📂 Log Directory:     $($config.FILE_OPERATIONS.log_directory)"
+                Write-Host "  • Log Directory:     $($config.FILE_OPERATIONS.log_directory)"
             }
             if ($config.FILE_OPERATIONS.ContainsKey('default_download_dir')) {
-                Write-Host "  💾 Download Dir:      $($config.FILE_OPERATIONS.default_download_dir)"
+                Write-Host "  • Download Dir:      $($config.FILE_OPERATIONS.default_download_dir)"
             }
             if ($config.FILE_OPERATIONS.ContainsKey('read_chunk_size')) {
-                Write-Host "  📖 Read Chunk Size:   $($config.FILE_OPERATIONS.read_chunk_size) bytes"
+                Write-Host "  • Read Chunk Size:   $($config.FILE_OPERATIONS.read_chunk_size) bytes"
             }
             if ($config.FILE_OPERATIONS.ContainsKey('max_download_size')) {
-                Write-Host "  📏 Max Download Size: $([Math]::Round($config.FILE_OPERATIONS.max_download_size / 1MB, 1)) MB"
+                Write-Host "  • Max Download Size: $([Math]::Round($config.FILE_OPERATIONS.max_download_size / 1MB, 1)) MB"
             }
             Write-Host ""
         }
         
-        if ($config.ContainsKey('MQTT') -and ($config.MQTT.ContainsKey('broker') -and $config.MQTT.broker)) {
-            Write-Host "MQTT Settings:" -ForegroundColor Cyan
+        if ($config.MQTT -and $config.MQTT.Count -gt 0 -and $config.MQTT.ContainsKey('broker') -and $config.MQTT.broker) {
+            Write-Host "MQTT Settings:" -ForegroundColor Green
             if ($config.MQTT.ContainsKey('broker')) {
-                Write-Host "  🏢 Broker:      $($config.MQTT.broker)"
+                Write-Host "  • Broker:      $($config.MQTT.broker)"
             }
             if ($config.MQTT.ContainsKey('port')) {
-                Write-Host "  🔌 Port:        $($config.MQTT.port)"
+                Write-Host "  • Port:        $($config.MQTT.port)"
             }
             if ($config.MQTT.ContainsKey('client_id')) {
-                Write-Host "  🆔 Client ID:   $($config.MQTT.client_id)"
+                Write-Host "  • Client ID:   $($config.MQTT.client_id)"
             }
             if ($config.MQTT.ContainsKey('use_tls')) {
-                Write-Host "  🔒 Use TLS:     $($config.MQTT.use_tls)"
+                Write-Host "  • Use TLS:     $($config.MQTT.use_tls)"
             }
             if ($config.MQTT.ContainsKey('keepalive')) {
-                Write-Host "  ⏱️ Keepalive:   $($config.MQTT.keepalive) seconds"
+                Write-Host "  • Keepalive:   $($config.MQTT.keepalive) seconds"
             }
             Write-Host ""
         }
         
-        Write-Host "📄 Config File: " -NoNewline -ForegroundColor Green
+        Write-Host "Config File: " -NoNewline -ForegroundColor Green
         Write-Host $ConfigPath -ForegroundColor White
         
     } catch {
@@ -403,15 +456,9 @@ try {
     Write-Color Green "Cordelia-I Configuration Validator"
     
     if ($ListPorts) {
-        Write-Color Green "`nAvailable COM ports:"
-        $ports = Get-AvailablePorts
-        if ($ports.Count -gt 0) {
-            foreach ($port in $ports) {
-                Write-Host "  $port"
-            }
-        } else {
-            Write-Color Yellow "No COM ports detected on this system."
-        }
+        Write-Color Green "`nDetailed COM Port Information:"
+        Write-Host ""
+        Show-DetailedPortInfo
         Write-Host ""
         exit 0
     }
