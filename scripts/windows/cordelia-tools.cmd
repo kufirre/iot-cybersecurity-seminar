@@ -37,34 +37,48 @@ echo   1. Upload Certificate         - Upload certificates using unified file ma
 echo   2. Device Information         - Get device details and status  
 echo   3. File Manager               - Manage files on device
 echo.
-echo   🔧 CONFIGURATION ^& TESTING
+echo   🔧 SYSTEM OPERATIONS
 echo   ────────────────────────────────────────────────────────────────────────────────
-echo   4. Configuration Validator    - Test settings and connection
-echo   5. Setup Wizard               - First-time setup assistance
-echo   6. System Check               - Verify system requirements
-echo   7. Create Shortcuts           - Desktop shortcuts for tools
+echo   4. System Management          - Reboot device, factory reset
+echo   5. Wi-Fi Management           - Scan, connect, disconnect Wi-Fi
+echo.
+echo   🌐 CONNECTIVITY ^& IOT
+echo   ────────────────────────────────────────────────────────────────────────────────
+echo   6. MQTT Management            - Connect to MQTT brokers (TCP/TLS/mTLS)
+echo   7. IoT Operations             - Device provisioning and platform integration
+echo.
+echo   ⚙️  CONFIGURATION ^& TESTING
+echo   ────────────────────────────────────────────────────────────────────────────────
+echo   8. Configuration Validator    - Test settings and connection
+echo   9. Setup Wizard               - First-time setup assistance
+echo   10. System Check              - Verify system requirements
+echo   11. Create Shortcuts          - Desktop shortcuts for tools
 echo.
 echo   📖 HELP ^& DOCUMENTATION
 echo   ────────────────────────────────────────────────────────────────────────────────
-echo   8. Quick Start Guide          - Step-by-step instructions
-echo   9. Troubleshooting            - Common issues and solutions
-echo   10. About                     - Version and system information
+echo   12. Quick Start Guide         - Step-by-step instructions
+echo   13. Troubleshooting           - Common issues and solutions
+echo   14. About                     - Version and system information
 echo.
-echo   11. 🚪 Exit
+echo   15. 🚪 Exit
 echo.
-set /p choice="Enter your choice (1-11): "
+set /p choice="Enter your choice (1-15): "
 
 if "%choice%"=="1" goto UPLOAD_CERT
 if "%choice%"=="2" goto DEVICE_INFO
 if "%choice%"=="3" goto FILE_MANAGER
-if "%choice%"=="4" goto CONFIG_VALIDATOR
-if "%choice%"=="5" goto SETUP_WIZARD
-if "%choice%"=="6" goto SYSTEM_CHECK
-if "%choice%"=="7" goto CREATE_SHORTCUTS
-if "%choice%"=="8" goto QUICK_START
-if "%choice%"=="9" goto TROUBLESHOOTING
-if "%choice%"=="10" goto ABOUT
-if "%choice%"=="11" goto EXIT
+if "%choice%"=="4" goto SYSTEM_MANAGEMENT
+if "%choice%"=="5" goto WIFI_MANAGEMENT
+if "%choice%"=="6" goto MQTT_MANAGEMENT
+if "%choice%"=="7" goto IOT_OPERATIONS
+if "%choice%"=="8" goto CONFIG_VALIDATOR
+if "%choice%"=="9" goto SETUP_WIZARD
+if "%choice%"=="10" goto SYSTEM_CHECK
+if "%choice%"=="11" goto CREATE_SHORTCUTS
+if "%choice%"=="12" goto QUICK_START
+if "%choice%"=="13" goto TROUBLESHOOTING
+if "%choice%"=="14" goto ABOUT
+if "%choice%"=="15" goto EXIT
 
 echo ❌ Invalid choice. Please try again.
 timeout /t 2 >nul
@@ -106,6 +120,54 @@ echo.
 start /wait cmd /c ""%~dp0src\file-manager.cmd""
 goto RETURN_TO_MENU
 
+:SYSTEM_MANAGEMENT
+cls
+echo.
+echo ╔════════════════════════════════════════════════════════════════════════╗
+echo ║                         🔧 System Management                           ║
+echo ╚════════════════════════════════════════════════════════════════════════╝
+echo.
+echo 🚀 Starting System Management Tool...
+echo.
+start /wait cmd /c ""%~dp0src\system-management.cmd""
+goto RETURN_TO_MENU
+
+:WIFI_MANAGEMENT
+cls
+echo.
+echo ╔════════════════════════════════════════════════════════════════════════╗
+echo ║                          📡 Wi-Fi Management                           ║
+echo ╚════════════════════════════════════════════════════════════════════════╝
+echo.
+echo 🚀 Starting Wi-Fi Management Tool...
+echo.
+start /wait cmd /c ""%~dp0src\wifi-management.cmd""
+goto RETURN_TO_MENU
+
+:MQTT_MANAGEMENT
+cls
+echo.
+echo ╔════════════════════════════════════════════════════════════════════════╗
+echo ║                          🌐 MQTT Management                            ║
+echo ╚════════════════════════════════════════════════════════════════════════╝
+echo.
+echo 🚀 Starting MQTT Management Tool...
+echo.
+start /wait cmd /c ""%~dp0src\mqtt-management.cmd""
+goto RETURN_TO_MENU
+
+:IOT_OPERATIONS
+cls
+echo.
+echo ╔════════════════════════════════════════════════════════════════════════╗
+echo ║                           🔗 IoT Operations                            ║
+echo ╚════════════════════════════════════════════════════════════════════════╝
+echo.
+echo 🚀 Starting IoT Operations Tool...
+echo.
+start /wait cmd /c ""%~dp0src\iot-operations.cmd""
+goto RETURN_TO_MENU
+
 :CONFIG_VALIDATOR
 cls
 echo.
@@ -139,7 +201,31 @@ echo 🔍 Step 2: Find COM Port
 echo ────────────────────────────────────────────────────────────────────
 echo Scanning for USB serial devices...
 echo.
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-WmiObject -Class Win32_PnPEntity | Where-Object { $_.Caption -match 'COM\d+' -and ($_.Caption -match 'USB' -or $_.Caption -match 'Serial' -or $_.Caption -match 'UART' -or $_.Caption -match 'CP210' -or $_.Caption -match 'FTDI' -or $_.Caption -match 'CH340') } | ForEach-Object { $comPort = if ($_.Caption -match '(COM\d+)') { $matches[1] } else { 'Unknown' }; Write-Host \"   🔌 $comPort - $($_.Caption)\" }; $allPorts = [System.IO.Ports.SerialPort]::GetPortNames(); if ($allPorts.Count -gt 0) { Write-Host ''; Write-Host 'All available COM ports:'; $allPorts | ForEach-Object { Write-Host \"   📍 $_\" } } else { Write-Host '   ⚠️  No COM ports detected on system' }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Write-Host 'USB Serial Devices (likely Cordelia-I candidates):'; Write-Host '════════════════════════════════════════════════════════════════'; Get-WmiObject -Class Win32_PnPEntity | Where-Object { $_.Caption -match 'COM\d+' -and ($_.Caption -match 'USB' -or $_.Caption -match 'Serial' -or $_.Caption -match 'UART' -or $_.Caption -match 'CP210' -or $_.Caption -match 'FTDI' -or $_.Caption -match 'CH340') } | ForEach-Object { $comPort = if ($_.Caption -match '(COM\d+)') { $matches[1] } else { 'Unknown' }; Write-Host \"   🔌 $comPort - $($_.Caption)\"; try { if ($_.HardwareID) { Write-Host \"      Hardware ID: $($_.HardwareID[0])\"; if ($_.HardwareID[0] -match 'VID_10C4' -or $_.HardwareID[0] -match 'CP210') { Write-Host \"      ✅ Silicon Labs CP210x - Common for Cordelia-I\" } elseif ($_.HardwareID[0] -match 'VID_0403' -or $_.HardwareID[0] -match 'FTDI') { Write-Host \"      ✅ FTDI Chip - Alternative driver\" } } } catch { } }"
+echo.
+echo 📌 Please select your Cordelia-I COM port:
+echo ────────────────────────────────────────────────────────────────────
+echo.
+echo All Available COM ports:
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ports = [System.IO.Ports.SerialPort]::GetPortNames() | Sort-Object; if ($ports.Count -gt 0) { for ($i = 0; $i -lt $ports.Count; $i++) { Write-Host \"   $($i + 1). $($ports[$i])\" } } else { Write-Host '   No COM ports detected' }"
+echo.
+echo 0. Manual entry (type COM port name)
+echo.
+set /p port_choice="Enter your choice (1-9 or 0): "
+
+REM Get the selected port
+if "%port_choice%"=="0" (
+    set /p selected_port="Enter the COM port for your Cordelia-I device (e.g., COM3): "
+    if "!selected_port!"=="" (
+        echo ⚠️  No port entered. Using COM1 as default.
+        set selected_port=COM1
+    )
+) else (
+    REM Use PowerShell to get the port based on selection
+    for /f "delims=" %%i in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "$ports = [System.IO.Ports.SerialPort]::GetPortNames() | Sort-Object; $choice = [int]'%port_choice%' - 1; if ($choice -ge 0 -and $choice -lt $ports.Count) { $ports[$choice] } else { 'COM1' }"') do set selected_port=%%i
+)
+
+echo ✅ Selected COM port: %selected_port%
 echo.
 echo If your Cordelia-I device doesn't appear above, try:
 echo   • Reconnecting the USB cable
@@ -149,12 +235,13 @@ echo.
 echo ⚙️  Step 3: Create Configuration
 echo ────────────────────────────────────────────────────────────────────
 echo.
-set /p create_config="Would you like to create a configuration file? (Y/N): "
+echo 📋 Selected COM port: %selected_port%
+echo.
+set /p create_config="Would you like to create/update a configuration file? (Y/N): "
 if /i "%create_config%"=="Y" (
-    set /p com_port="Enter the COM port for your device (e.g., COM3): "
-    echo Creating configuration file with COM port: !com_port!
     echo.
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { Import-Module '%~dp0src\\utilities.psm1'; $config = [CordeliaConfig]::new(); $config.UART.port = '!com_port!'; $config.SetDefaults(); $content = @('[UART]', 'port=!com_port!', 'baudrate=115200', 'databits=8', 'parity=N', 'stopbits=1', 'timeout=30', '', '[SECURITY]', 'certificate_name=certificate.pem', 'chunk_size=512', 'encoding=base64', 'max_retries=3', 'verify_upload=true'); $content | Out-File -FilePath '..\\common\\config.ini' -Encoding UTF8; Write-Host '✅ Configuration file created: ..\\common\\config.ini' }"
+    echo 🔍 Checking for existing configuration files...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0src\setup-config.ps1" -SelectedPort "%selected_port%"
 )
 echo.
 echo 🧪 Step 4: Test Connection
@@ -162,10 +249,23 @@ echo ─────────────────────────
 set /p test_conn="Would you like to test the connection now? (Y/N): "
 if /i "%test_conn%"=="Y" (
     echo.
-    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0src\\config-validator.ps1" -TestConnection
+    echo Testing connection using the configuration validator...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0src\config-validator.ps1" -TestConnection
 )
 echo.
 echo ✨ Setup wizard completed!
+echo.
+echo 📋 Configuration Summary:
+echo ────────────────────────────────────────────────────────────────────
+echo ✅ COM Port: %selected_port%
+echo ✅ Configuration file: Created/updated with default settings
+echo.
+echo 📝 Next Steps:
+echo   • Your configuration file has been created with recommended defaults
+echo   • You can customize settings by editing the config.ini file if needed
+echo   • Common settings to customize: MQTT broker, certificates, file paths
+echo   • Use the Configuration Validator (option 8) to review your settings
+echo.
 echo You can now use the other tools to manage your Cordelia-I device.
 echo.
 pause
@@ -196,8 +296,8 @@ if exist "src\device-info.ps1" (echo    ✅ device-info.ps1) else (echo    ❌ d
 if exist "src\config-validator.ps1" (echo    ✅ config-validator.ps1) else (echo    ❌ config-validator.ps1 MISSING)
 
 echo.
-echo 🔌 Available COM Ports:
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$ports = [System.IO.Ports.SerialPort]::GetPortNames(); if ($ports.Count -gt 0) { $ports | ForEach-Object { Write-Host '   🔌' $_ } } else { Write-Host '   ⚠️  No COM ports detected' }"
+echo 🔌 Available COM Ports with Details:
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Write-Host 'USB Serial Devices:'; Write-Host '──────────────────────────────────────────────────────────'; Get-WmiObject -Class Win32_PnPEntity | Where-Object { $_.Caption -match 'COM\d+' } | ForEach-Object { $comPort = if ($_.Caption -match '(COM\d+)') { $matches[1] } else { 'Unknown' }; Write-Host \"   🔌 $comPort - $($_.Caption)\"; try { if ($_.HardwareID) { Write-Host \"      Hardware ID: $($_.HardwareID[0])\"; if ($_.HardwareID[0] -match 'VID_10C4' -or $_.HardwareID[0] -match 'CP210') { Write-Host \"      ✅ Silicon Labs CP210x - Common for Cordelia-I\" } elseif ($_.HardwareID[0] -match 'VID_0403' -or $_.HardwareID[0] -match 'FTDI') { Write-Host \"      ✅ FTDI Chip - Alternative driver\" } } } catch { } }; Write-Host ''; Write-Host 'All COM Ports:'; Write-Host '──────────────────────────────────────────────────────────'; $allPorts = [System.IO.Ports.SerialPort]::GetPortNames(); if ($allPorts.Count -gt 0) { $allPorts | ForEach-Object { Write-Host \"   📍 $_\" } } else { Write-Host '   ⚠️  No COM ports detected' }"
 
 echo.
 echo 📋 PowerShell Module Test:
